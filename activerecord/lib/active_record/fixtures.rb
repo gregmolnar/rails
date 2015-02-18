@@ -523,6 +523,7 @@ module ActiveRecord
 
           connection.transaction(:requires_new => true) do
             deleted_tables = Set.new
+            reset_pk_sequence = connection.respond_to?(:reset_pk_sequence!)
             fixture_sets.each do |fs|
               conn = fs.model_class.respond_to?(:connection) ? fs.model_class.connection : connection
               table_rows = fs.table_rows
@@ -539,13 +540,8 @@ module ActiveRecord
                   conn.insert_fixture(row, fixture_set_name)
                 end
               end
-            end
-
-            # Cap primary key sequences to max(pk).
-            if connection.respond_to?(:reset_pk_sequence!)
-              fixture_sets.each do |fs|
-                connection.reset_pk_sequence!(fs.table_name)
-              end
+              # Cap primary key sequences to max(pk).
+              connection.reset_pk_sequence!(fs.table_name) if reset_pk_sequence
             end
           end
 
