@@ -35,3 +35,4 @@
 
 /public/assets
 <% end -%>
+config/credentials/*.key
